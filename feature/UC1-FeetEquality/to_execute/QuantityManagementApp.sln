@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "torun", "torun\torun.csproj", "{87C84AC6-11D0-4533-BFBF-52303E3FDB88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuantityMeasurement.Tests", "QuantityMeasurement.Tests\QuantityMeasurement.Tests.csproj", "{3767DBD0-FECD-4D76-90D4-56ED2A9B6967}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{87C84AC6-11D0-4533-BFBF-52303E3FDB88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87C84AC6-11D0-4533-BFBF-52303E3FDB88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87C84AC6-11D0-4533-BFBF-52303E3FDB88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87C84AC6-11D0-4533-BFBF-52303E3FDB88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3767DBD0-FECD-4D76-90D4-56ED2A9B6967}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3767DBD0-FECD-4D76-90D4-56ED2A9B6967}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3767DBD0-FECD-4D76-90D4-56ED2A9B6967}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3767DBD0-FECD-4D76-90D4-56ED2A9B6967}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
