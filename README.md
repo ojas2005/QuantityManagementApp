@@ -1,184 +1,313 @@
-QuantityManagementAppAuthor: Ojas
-Date: 20-Feb-2026
+--------------------------------------QuantityManagementApp--------------------------------
+---
 
- Project Overview:- QuantityManagementApp is a C# application designed to perform unit-based quantity comparisons and conversions.This repository currently includes:
-- Project Initialization
-- UC1: Feet Measurement Equality
-- NUnit Test Coverage
-- GitHub Version Control
+## 👨‍💻 Author
 
----------------------------------------------------->✅ UC1: Feet Measurement Equality<-----------------------------------------------------------------------
+**Ojas**
+Start date:-  20-Feb-2026
 
-Objective:- To verify equality between two measurements expressed in feet,ensuring:
-- Correct value-based comparison
-- Proper handling of floating-point numbers
-- Null safety
-- Type safety
-- Compliance with the equality contract
+---
 
- Problem StatementIn measurement-based systems,two objects representing the same value must be considered equal even if they are different instances.
-Example:
+# 🚀 Project Overview
 
-1.0 ft == 1.0 ft → true
-1.0 ft == 2.0 ft → false
+**QuantityManagementApp** is a feature-driven C# application built using **.NET 8**, focused on:
 
+* Measurement equality validation
+* Cross-unit conversion
+* Unit addition
+* Floating-point precision handling
+* Weight & Length abstraction
+* 200+ NUnit test cases
+* Git feature-branch development
 
-🏗 Design Approach1️⃣ Class Structure- Feet class represents a measurement in feet.
-- Encapsulates value using a private readonly double.
-- Ensures immutability.
-- Overrides Equals() for value-based comparison.
-- Implements proper null and type checks.
+The project evolves incrementally through structured Use Cases (UC1–UC9), following clean architecture and OOP principles.
 
-🔍 Equality Implementation LogicThe Equals() method ensures:
-- Reflexive property → object equals itself
-- Null check → object compared with null returns false
-- Type check → only compares with Feet
-- Value comparison using Double.Compare()
-Example logic:
+---
 
-public override bool Equals(object obj)
-{
-    if (this == obj) return true;
-    if (obj == null || obj.GetType() != typeof(Feet)) return false;
-    Feet other = (Feet)obj;
-    return Double.Compare(this.value,other.value) == 0;
-}
+# 🌿 Development Strategy (Feature Branching)
 
+Each use case is developed independently:
 
-🔁 Equality Contract Verified
-🧪 NUnit Test CoverageAll tests follow clean naming conventions and focus on one assertion per test.
-Test Cases Implemented
-✔ `testEquality_SameValue()`Verifies that two objects with the same value are equal.
-✔ `testEquality_DifferentValue()`Verifies objects with different values are not equal.
-✔ `testEquality_NullComparison()`Verifies object compared with null returns false.
-✔ `testEquality_NonNumericInput()`Verifies comparison with different type returns false.
-✔ `testEquality_SameReference()`Verifies reflexive property (object equals itself).
+```
+dev
+ ├── feature/UC1-FeetEquality
+ ├── feature/UC2-InchEquality
+ ├── feature/UC3-GenericLength
+ ├── feature/UC4-YardEquality
+ ├── feature/UC5-UnitConversion
+ ├── feature/UC6-UnitAddition
+ ├── feature/UC7-TargetUnitAddition
+ ├── feature/UC8-StandaloneUnit
+ └── feature/UC9-WeightMeasurementEquality
+```
 
-📘 Concepts Learned in UC1- Object-Oriented Design
-- Encapsulation & Immutability
-- Overriding Equals() properly
-- Floating-point comparison using Double.Compare()
-- Equality contract principles
-- Null safety
-- Type safety
-- Writing clean NUnit test cases
-- Given-When-Then test naming style
+✔ Incremental delivery
+✔ Independent validation
+✔ Clean Git history
+✔ Production-like workflow
 
-🖥 Example ExecutionInput:
+---
 
-1.0 ft and 1.0 ft
+# 📚 Feature Evolution
 
-Output:
+---
 
-Equal (true)
+## ✅ UC1 – Feet Equality
 
+* Implemented immutable `Feet` class
+* Overrode `Equals()`
+* Verified equality contract
+* Introduced NUnit testing
 
+📌 Learning:
 
-🚀 How to RunBuild Project
+* Value-based equality
+* Null safety
+* Type safety
+* Floating-point comparison
+
+---
+
+## ✅ UC2 – Feet & Inches Equality
+
+* Added `Inches` class
+* Maintained independent equality
+* Identified DRY violation
+
+📌 Key Insight:
+Code duplication leads to maintenance risk → Motivated UC3.
+
+---
+
+## ✅ UC3 – Generic Length System
+
+Replaced multiple classes with:
+
+```csharp
+public class QuantityLength : IEquatable<QuantityLength>
+```
+
+Introduced:
+
+* `LengthUnit` enum
+* Base-unit conversion strategy (Feet)
+* Tolerance-based comparison
+* Operator overloading (==, !=)
+
+---
+
+## ✅ UC4 – Yard Support
+
+Extended generic system to support:
+
+* Yards ↔ Feet
+* Yards ↔ Inches
+* Yards ↔ Centimeters
+
+---
+
+## ✅ UC5 – Unit Conversion
+
+Added:
+
+```csharp
+public double ConvertTo(LengthUnit targetUnit)
+```
+
+✔ Cross-unit conversion
+✔ Service abstraction layer
+✔ Input validation
+
+---
+
+## ✅ UC6 – Unit Addition
+
+Added support for:
+
+```csharp
+QuantityLength.Add(first, second)
+```
+
+Process:
+
+1. Convert both to base unit
+2. Add
+3. Convert result back to first unit
+
+---
+
+## ✅ UC7 – Target Unit Addition
+
+Explicit result unit support:
+
+```csharp
+QuantityLength.Add(first, second, targetUnit)
+```
+
+✔ Improved API usability
+✔ Flexible result formatting
+
+---
+
+## ✅ UC8 – Standalone Unit Architecture
+
+Moved conversion logic to enum extension methods:
+
+* ConvertToBaseUnit()
+* ConvertFromBaseUnit()
+* GetConversionFactor()
+* GetLabel()
+
+✔ Separation of concerns
+✔ Cleaner architecture
+
+---
+
+## ✅ UC9 – Weight Measurement System
+
+Added:
+
+```csharp
+public class QuantityWeight : IEquatable<QuantityWeight>
+```
+
+### Supported Units:
+
+* Kilogram (Base)
+* Gram
+* Pound
+
+### Features:
+
+✔ Cross-unit equality
+✔ Conversion
+✔ Addition
+✔ Nullable unit validation
+✔ Negative value support
+✔ Hash normalization
+
+---
+
+# 🧠 Architecture Overview
+
+## Length Architecture
+
+```
+              +----------------------+
+              |  QuantityLength      |
+              |----------------------|
+              | double _value        |
+              | LengthUnit _unit     |
+              |----------------------|
+              | ConvertTo()          |
+              | Equals()             |
+              | Add()                |
+              +----------+-----------+
+                         |
+                         v
+                +----------------+
+                |  LengthUnit    |
+                |----------------|
+                | Feet (Base)    |
+                | Inch           |
+                | Yard           |
+                | Centimeters    |
+                +----------------+
+```
+
+---
+
+## Weight Architecture
+
+```
+              +----------------------+
+              |  QuantityWeight      |
+              |----------------------|
+              | double _value        |
+              | WeightUnit _unit     |
+              |----------------------|
+              | ConvertTo()          |
+              | Equals()             |
+              | Add()                |
+              +----------+-----------+
+                         |
+                         v
+                +----------------+
+                |  WeightUnit    |
+                |----------------|
+                | Kilogram(Base) |
+                | Gram           |
+                | Pound          |
+                +----------------+
+```
+
+---
+
+# 🧪 Testing Strategy
+
+* 200+ NUnit test cases
+* One assertion per test
+* Edge case coverage
+* Null validation
+* Floating-point tolerance checks
+* Equality contract verification
+
+✔ Reflexive
+✔ Symmetric
+✔ Transitive
+✔ Consistent
+✔ Null-safe
+
+---
+
+# 🏗 Design Principles Applied
+
+* Object-Oriented Programming
+* Encapsulation
+* Immutability
+* DRY Principle
+* SOLID Principles
+* Equality Contract
+* IEquatable<T>
+* Operator Overloading
+* Clean Git Workflow
+* Separation of Concerns
+
+---
+
+# ▶️ How to Run
+
+## Build
+
+```bash
 dotnet build
+```
 
-Run Application
+## Run Application
+
+```bash
 dotnet run --project torun
+```
 
-Run Tests
+## Run Tests
+
+```bash
 dotnet test
+```
+
+---
+
+# 📈 Project Progression Summary
+
+Feet Equality
+→ Multi-Unit Length
+→ Generic Length
+→ Conversion
+→ Addition
+→ Explicit Target Control
+→ Unit Architecture Refinement
+→ Weight Measurement System
+
+This repository demonstrates structured, incremental system design — similar to real production evolution.
 
 
------------------------------------------------------->✅UC2: Feet and Inches Measurement Equality<------------------------------------------------------------
-
-Description:- This Use Case extends UC1 to support equality checks for Inches in addition to Feet.
-Important: This use case does NOT compare Feet with Inches.Both units are treated independently.
-The implementation ensures:
-- Accurate value-based equality comparison
-- Proper handling of floating-point values
-- Null safety
-- Type safety
-- Complete NUnit test coverage for edge cases
-
-✅ Preconditions- The QuantityMeasurementApp class is instantiated.
-- Two numerical values in Feet are provided.
-- Two numerical values in Inches are provided.
-- Values are hard-coded for comparison.
-
-🔄 Main Flow
-1. The Main method calls a static method to validate and compare two Feet values.
-2. The Main method calls another static method to validate and compare two Inches values.
-3. These static methods:
-- Instantiate Feet and Inches objects.
-- Call the overridden Equals() method.
-4. Both classes:
-- Validate input values (numeric check).
-- Perform equality comparison using value-based logic.
-5. The comparison result (true/false) is returned to the user.
-
-📤 Postconditions
-- The equality result (true or false) is returned.
-- Feet-to-Feet comparisons are supported.
-- Inch-to-Inch comparisons are supported.
-- Cross-unit comparison (Feet vs Inches) is NOT performed.
-
-🏗 Implementation Approach
-Step 1 Create a separate Inches class similar to the Feet class.
-Step 2 Verify equality:
-- Two Inches objects with same value → Equal
-- Two Inches objects with different values → Not Equal
-Step 3 Reduce dependency on the Main method by:
-- Creating separate service methods for Feet equality
-- Creating separate service methods for Inches equality
-
-🖥 Example Output
-Input: 1.0 inch and 1.0 inch
-Output: Equal (true)
-Input: 1.0 ft and 1.0 ft
-Output: Equal (true)
-
-📚 Concepts Learned in UC2
-UC2 reinforces concepts from UC1:
-- Object Equality
-- Floating-point comparison using Double.Compare()
-- Null checking
-- Type safety
-- Encapsulation and immutability
-- NUnit testing best practices
-
-🔎 Key Concepts Tested 
-
-Equality Contract
-- Reflexive
-- Symmetric
-- Transitive
-- Consistent
-- Null-safe
-  
-Type Safety
-Objects are only equal to objects of the same type.
-
-Value-Based Equality
-Objects with identical values are considered equal.
-
-Null Safety
-Comparison with null safely returns false.
-
-🧪 Test Cases Implemented
-Test cases are similar to UC1 and applied for both Feet and Inches:
-- testEquality_SameValue()
-- testEquality_DifferentValue()
-- testEquality_NullComparison()
-- testEquality_NonNumericInput()
-- testEquality_SameReference()
-All test cases ensure:
-- Complete branch coverage
-- Validation of edge cases
-- Proper behavior of overridden Equals() method
-
-⚠️ Design Limitation (Important Learning)
-Disadvantage of Using Separate Feet and Inches ClassesThe current implementation violates the DRY (Don't Repeat Yourself) principle.
-Both Feet and Inches classes contain:
-- Same constructor pattern
-- Identical Equals() implementation
-- Same private value field
-- Same validation logic
-❌ Problems- Code duplication
-- Harder maintenance
-- Risk of inconsistency
-- Any logic change must be updated in both classes
