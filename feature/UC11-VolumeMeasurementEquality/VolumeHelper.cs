@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// </summary>
 public static class VolumeUnitHelper
 {
-    //onversion factors relative to litre
+    //conversion factors relative to litre
     private static readonly Dictionary<VolumeUnit, IMeasurable> _map = new Dictionary<VolumeUnit, IMeasurable>
     {
         { VolumeUnit.Litre, new VolumeUnitImpl(1.0, "L") },

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
 ///     UC10: Generic Quantity Class with Unit Interface for Multi-Category Support
@@ -13,7 +14,7 @@ using System;
 ///     (volume,temperature,etc.) without code duplication.
 /// </summary>
 
-public class Quantity<TUnit> : IEquatable<Quantity<TUnit>> where TUnit : struct,Enum
+public class Quantity<TUnit> : IEquatable<Quantity<TUnit>> where TUnit : struct, Enum
 {
     private const double Tolerance = 0.0001;
 
@@ -21,7 +22,7 @@ public class Quantity<TUnit> : IEquatable<Quantity<TUnit>> where TUnit : struct,
     private readonly TUnit _unit;
     private readonly IMeasurable _unitImpl;
 
-    public Quantity(double value,TUnit unit)
+    public Quantity(double value, TUnit unit)
     {
         _unitImpl = UnitResolver.Get(unit);
         if (!_unitImpl.IsValidValue(value))
@@ -40,11 +41,11 @@ public class Quantity<TUnit> : IEquatable<Quantity<TUnit>> where TUnit : struct,
         return targetImpl.FromBaseUnit(baseValue);
     }
 
-    public Quantity<TUnit> To(TUnit targetUnit) => new Quantity<TUnit>(ConvertTo(targetUnit),targetUnit);
+    public Quantity<TUnit> To(TUnit targetUnit) => new Quantity<TUnit>(ConvertTo(targetUnit), targetUnit);
 
-    public override bool Equals(object obj) => Equals(obj as Quantity<TUnit>);
+    public override bool Equals(object? obj) => Equals(obj as Quantity<TUnit>);
 
-    public bool Equals(Quantity<TUnit> other)
+    public bool Equals(Quantity<TUnit>? other)
     {
         if (other is null) return false;
         double thisBase = _unitImpl.ToBaseUnit(_value);
@@ -55,40 +56,40 @@ public class Quantity<TUnit> : IEquatable<Quantity<TUnit>> where TUnit : struct,
     public override int GetHashCode()
     {
         double baseValue = _unitImpl.ToBaseUnit(_value);
-        return Math.Round(baseValue,4).GetHashCode();
+        return Math.Round(baseValue, 4).GetHashCode();
     }
 
     public override string ToString() => $"{_value} {_unitImpl.Label}";
 
-    public static bool operator ==(Quantity<TUnit> left,Quantity<TUnit> right)
+    public static bool operator ==(Quantity<TUnit>? left, Quantity<TUnit>? right)
     {
         if (left is null) return right is null;
         return left.Equals(right);
     }
 
-    public static bool operator !=(Quantity<TUnit> left,Quantity<TUnit> right) => !(left == right);
+    public static bool operator !=(Quantity<TUnit>? left, Quantity<TUnit>? right) => !(left == right);
 
     public Quantity<TUnit> Add(Quantity<TUnit> other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
         double baseSum = _unitImpl.ToBaseUnit(_value) + other._unitImpl.ToBaseUnit(other._value);
         double resultValue = _unitImpl.FromBaseUnit(baseSum);
-        return new Quantity<TUnit>(resultValue,_unit);
+        return new Quantity<TUnit>(resultValue, _unit);
     }
 
-    public Quantity<TUnit> Add(Quantity<TUnit> other,TUnit targetUnit)
+    public Quantity<TUnit> Add(Quantity<TUnit> other, TUnit targetUnit)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
         var targetImpl = UnitResolver.Get(targetUnit);
         double baseSum = _unitImpl.ToBaseUnit(_value) + other._unitImpl.ToBaseUnit(other._value);
         double resultValue = targetImpl.FromBaseUnit(baseSum);
-        return new Quantity<TUnit>(resultValue,targetUnit);
+        return new Quantity<TUnit>(resultValue, targetUnit);
     }
     
     /// <summary>
     /// Static method to add two quantities.Renamed to AddQuantities to avoid ambiguity with instance Add method.
     /// </summary>
-    public static Quantity<TUnit> AddQuantities(Quantity<TUnit> first,Quantity<TUnit> second)
+    public static Quantity<TUnit> AddQuantities(Quantity<TUnit>? first, Quantity<TUnit>? second)
     {
         if (first == null) throw new ArgumentNullException(nameof(first));
         if (second == null) throw new ArgumentNullException(nameof(second));
@@ -98,11 +99,11 @@ public class Quantity<TUnit> : IEquatable<Quantity<TUnit>> where TUnit : struct,
     /// <summary>
     /// Static method to add two quantities with target unit.Renamed to AddQuantities to avoid ambiguity with instance Add method.
     /// </summary>
-    public static Quantity<TUnit> AddQuantities(Quantity<TUnit> first,Quantity<TUnit> second,TUnit targetUnit)
+    public static Quantity<TUnit> AddQuantities(Quantity<TUnit>? first, Quantity<TUnit>? second, TUnit targetUnit)
     {
         if (first == null) throw new ArgumentNullException(nameof(first));
         if (second == null) throw new ArgumentNullException(nameof(second));
         //targetUnit is a value type(enum),cannot be null no need to check
-        return first.Add(second,targetUnit);
+        return first.Add(second, targetUnit);
     }
 }

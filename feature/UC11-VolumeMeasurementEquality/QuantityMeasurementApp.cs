@@ -7,7 +7,7 @@ public class QuantityMeasurementApp
     {
         WriteLine("Quantity Measurement Application (Generic)\n");
 
-        // Length equality demonstration
+        //length equality demonstration
         var feet1 = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
         var feet2 = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
         WriteLine($"feet testing: {feet1} equals {feet2}? {feet1.Equals(feet2)}");
@@ -40,7 +40,7 @@ public class QuantityMeasurementApp
         var inches0393701 = new Quantity<LengthUnit>(0.393701, LengthUnit.Inch);
         WriteLine($"cm to inches: {cm1ToInches} equals {inches0393701}? {cm1ToInches.Equals(inches0393701)}");
 
-        // Unit conversions
+        //unit conversions
         double feet2Inches = new Quantity<LengthUnit>(1.0, LengthUnit.Feet).ConvertTo(LengthUnit.Inch);
         WriteLine($"convert 1 foot to inches: {feet2Inches} inches");
 
@@ -73,12 +73,12 @@ public class QuantityMeasurementApp
 
         WriteLine();
 
-        // Instance conversion
+        //instance conversion
         var quantityLength = new Quantity<LengthUnit>(2.0, LengthUnit.Yards);
         double yards2InchesViaInstance = quantityLength.ConvertTo(LengthUnit.Inch);
         WriteLine($"2 yards converted to inches: {yards2InchesViaInstance} inches");
 
-        // Addition
+        //addition
         WriteLine("\nAddition of Length Units:");
         var add1Feet = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
         var add2Feet = new Quantity<LengthUnit>(2.0, LengthUnit.Feet);
@@ -117,7 +117,7 @@ public class QuantityMeasurementApp
 
         WriteLine();
 
-        // Addition with explicit target unit
+        //addition with explicit target unit
         WriteLine("Addition with Explicit Target Unit:");
         var uc7Feet = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
         var uc7Inches = new Quantity<LengthUnit>(12.0, LengthUnit.Inch);
@@ -199,7 +199,7 @@ public class QuantityMeasurementApp
         WriteLine("VOLUME MEASUREMENTS ");
         WriteLine(new string('=', 60));
 
-        // Volume equality demonstrations
+        //Volume equality demonstrations
         WriteLine("\nVolume Equality Comparisons:");
 
         var litre1 = new Quantity<VolumeUnit>(1.0, VolumeUnit.Litre);
@@ -226,7 +226,7 @@ public class QuantityMeasurementApp
         var gallon = new Quantity<VolumeUnit>(1.0, VolumeUnit.Gallon);
         WriteLine($"3.78541 L to 1 gal: {litreToGallonInverse} equals {gallon}? {litreToGallonInverse.Equals(gallon)}");
 
-        // Volume unit conversions
+        //volume unit conversions
         WriteLine("\nVolume Unit Conversions:");
 
         double litreToMillilitre = new Quantity<VolumeUnit>(1.0, VolumeUnit.Litre).ConvertTo(VolumeUnit.Millilitre);
@@ -244,7 +244,7 @@ public class QuantityMeasurementApp
         double zeroToMillilitre = new Quantity<VolumeUnit>(0.0, VolumeUnit.Litre).ConvertTo(VolumeUnit.Millilitre);
         WriteLine($"convert 0 L to mL: {zeroToMillilitre} mL");
 
-        // Volume addition (implicit target unit)
+        //volume addition (implicit target unit)
         WriteLine("\nVolume Addition (Implicit Target Unit):");
 
         var addLitre1 = new Quantity<VolumeUnit>(1.0, VolumeUnit.Litre);
@@ -267,7 +267,7 @@ public class QuantityMeasurementApp
         var addResultGallon = addGallon2.Add(addLitre3785);
         WriteLine($"add({addGallon2}, {addLitre3785}) = {addResultGallon:F5}");
 
-        // Volume addition (explicit target unit)
+        //volume addition (explicit target unit)
         WriteLine("\nVolume Addition (Explicit Target Unit):");
 
         var expLitre = new Quantity<VolumeUnit>(1.0, VolumeUnit.Litre);
@@ -294,7 +294,7 @@ public class QuantityMeasurementApp
         var expResultLitreFromGal = expLitre2.Add(expGallon4, VolumeUnit.Litre);
         WriteLine($"add({expLitre2}, {expGallon4}, target=L) = {expResultLitreFromGal:F5}");
 
-        // Category incompatibility demonstration
+        //category incompatibility demonstration
         WriteLine("\nCategory Incompatibility (Volume vs Others):");
 
         var volumeForCompare = new Quantity<VolumeUnit>(1.0, VolumeUnit.Litre);
@@ -304,7 +304,7 @@ public class QuantityMeasurementApp
         WriteLine($"volume (1 L) equals length (1 ft)? {volumeForCompare.Equals(lengthForCompare)}");
         WriteLine($"volume (1 L) equals weight (1 kg)? {volumeForCompare.Equals(weightForCompare)}");
 
-        // Negative volume demonstration
+        //negative volume demonstration
         WriteLine("\nNegative Volume Values:");
 
         var negLitre = new Quantity<VolumeUnit>(-1.0, VolumeUnit.Litre);
@@ -313,8 +313,8 @@ public class QuantityMeasurementApp
 
         var posLitre = new Quantity<VolumeUnit>(5.0, VolumeUnit.Litre);
         var negMillilitre2000 = new Quantity<VolumeUnit>(-2000.0, VolumeUnit.Millilitre);
-        var negAddResult = posLitre.Add(negMillilitre2000);
-        WriteLine($"add(5 L, -2000 mL) = {negAddResult}");
+        var volumeNegAddResult = posLitre.Add(negMillilitre2000);
+        WriteLine($"add(5 L, -2000 mL) = {volumeNegAddResult}");
 
         WriteLine();
 
