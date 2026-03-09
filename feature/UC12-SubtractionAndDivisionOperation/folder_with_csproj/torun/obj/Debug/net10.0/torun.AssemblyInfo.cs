@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("torun")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e7dfbecb59148788c4d873a2afa3e5105ac05a2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e000b53adb2a4f33e333cfd78334ecb75e7030a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("torun")]
 [assembly: System.Reflection.AssemblyTitleAttribute("torun")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
