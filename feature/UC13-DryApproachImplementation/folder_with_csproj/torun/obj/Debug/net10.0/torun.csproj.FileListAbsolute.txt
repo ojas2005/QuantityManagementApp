@@ -1,0 +1,15 @@
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/bin/Debug/net10.0/torun
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/bin/Debug/net10.0/torun.deps.json
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/bin/Debug/net10.0/torun.runtimeconfig.json
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/bin/Debug/net10.0/torun.dll
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/bin/Debug/net10.0/torun.pdb
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/torun.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/torun.AssemblyInfoInputs.cache
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/torun.AssemblyInfo.cs
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/torun.csproj.CoreCompileInputs.cache
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/torun.sourcelink.json
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/torun.dll
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/refint/torun.dll
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/torun.pdb
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/torun.genruntimeconfig.cache
+/Users/ojastiwari/QuantityManagementApp/feature/UC13-DryApproachImplementation/folder_with_csproj/torun/obj/Debug/net10.0/ref/torun.dll
