@@ -56,3 +56,54 @@ GO
 -- Check if __EFMigrationsHistory table exists (tracks migrations)
 SELECT * FROM __EFMigrationsHistory;
 GO
+
+USE QuantityMeasurementDb;
+GO
+
+-- Find out which database you're actually connected to
+SELECT 
+    DB_NAME() AS CurrentDatabase,
+    @@SERVERNAME AS ServerName,
+    CURRENT_USER AS CurrentUser;
+GO
+
+-- List ALL databases on this server
+SELECT name, database_id, create_date 
+FROM sys.databases 
+ORDER BY name;
+GO
+
+
+USE QuantityMeasurementDb;
+GO
+
+-- Check if the table exists
+-- Check if any data exists at all
+SELECT COUNT(*) AS TotalRecords FROM QuantityMeasurements;
+GO
+
+-- If records exist, show the most recent ones
+IF (SELECT COUNT(*) FROM QuantityMeasurements) > 0
+BEGIN
+    SELECT TOP 10 
+        Id,
+        OperationType,
+        FirstValue,
+        FirstUnit,
+        SecondValue,
+        SecondUnit,
+        ResultValue,
+        ResultUnit,
+        Timestamp
+    FROM QuantityMeasurements
+    ORDER BY Timestamp DESC;
+END
+ELSE
+BEGIN
+    PRINT 'No records found in QuantityMeasurements table';
+END
+GO
+
+
+USE QuantityMeasurementDb;
+SELECT * FROM QuantityMeasurements ORDER BY Timestamp DESC;
