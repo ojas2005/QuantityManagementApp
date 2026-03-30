@@ -1,0 +1,19 @@
+[ApiController]
+[Route("api/[controller]")]
+public class MeasurementController : ControllerBase
+{
+    private readonly IQuantityMeasurementService _service;
+
+    public MeasurementController(IQuantityMeasurementService service)
+    {
+        _service = service;
+    }
+
+    [HttpGet("convert")]
+    public IActionResult GetConversion(double value, string fromUnit, string toUnit)
+    {
+        // This calls the SAME business logic your console app uses!
+        var result = _service.Convert(value, fromUnit, toUnit);
+        return Ok(new { Result = result });
+    }
+}
