@@ -190,6 +190,9 @@ var app = builder.Build();
 
 // 10. HTTP PIPELINE
 
+// Temporarily enable detailed errors in ALL environments to debug Render 500 error
+app.UseDeveloperExceptionPage();
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -232,8 +235,9 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "❌ An error occurred while migrating the database.");
-        Console.WriteLine($" Database connection issue: {ex.Message}");
+        logger.LogError(ex, "❌ DATABASE MIGRATION FAILED: {Message}", ex.Message);
+        logger.LogError("Stack Trace: {StackTrace}", ex.StackTrace);
+        Console.WriteLine($"❌ CRITICAL: Database migration failed: {ex.Message}");
     }
 }
 
