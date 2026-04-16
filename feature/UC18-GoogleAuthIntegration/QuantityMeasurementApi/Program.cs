@@ -190,14 +190,13 @@ var app = builder.Build();
 
 // 10. HTTP PIPELINE
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quantity API V1");
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quantity API V1");
+    // To serve Swagger UI at the app's root (http://localhost:<port>/), set RoutePrefix to empty string.
+    // c.RoutePrefix = string.Empty; 
+});
 
 app.UseCors("AllowAll");
 
