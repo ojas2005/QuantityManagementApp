@@ -147,7 +147,7 @@ using (var scope = app.Services.CreateScope())
     context.Database.EnsureCreated();
     logger.LogInformation("📊 Database verified");
 }
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 app.Urls.Add($"http://*:{port}");
 
 app.Run();
