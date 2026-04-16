@@ -36,7 +36,7 @@ namespace RepositoryLayer.Context
 
             // Create options builder
             var optionsBuilder = new DbContextOptionsBuilder<QuantityDbContext>();
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseNpgsql(connectionString);
 
             return new QuantityDbContext(optionsBuilder.Options);
         }

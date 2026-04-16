@@ -65,7 +65,7 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("profile");
     options.Scope.Add("email");
     
-    Console.WriteLine($" Google Auth configured with ClientId: {options.ClientId?.Substring(0, 20)}...");
+    Console.WriteLine($" Google Auth configured with ClientId: {(options.ClientId?.Length > 20 ? options.ClientId?.Substring(0, 20) : options.ClientId)}...");
 });
 
 
@@ -114,11 +114,7 @@ builder.Services.AddSwaggerGen(c =>
 // 5. DATABASE CONFIGURATION
 
 builder.Services.AddDbContext<QuantityDbContext>(options =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseSqlServer(connectionString);
-    options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
-});
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 // 6. REDIS CACHE
@@ -203,28 +199,41 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+
+// Skip HTTPS redirect in development (Angular dev server calls http://localhost:5000)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
 
 app.MapControllers();
 
+// Health check endpoint for frontend
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
-// 11. DATABASE VERIFICATION
+
+// 11. DATABASE VERIFICATION & MIGRATION
 
 using (var scope = app.Services.CreateScope())
 {
+    var services = scope.ServiceProvider;
     try
     {
-        var context = scope.ServiceProvider.GetRequiredService<QuantityDbContext>();
-        context.Database.EnsureCreated();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation(" Database verified");
+        var context = services.GetRequiredService<QuantityDbContext>();
+        // context.Database.EnsureCreated(); // Replaced with Migrate()
+        context.Database.Migrate();
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("✅ Database migrated and verified");
     }
     catch (Exception ex)
     {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "❌ An error occurred while migrating the database.");
         Console.WriteLine($" Database connection issue: {ex.Message}");
     }
 }
@@ -233,14 +242,15 @@ using (var scope = app.Services.CreateScope())
 var googleConfig = builder.Configuration.GetSection("GoogleAuth");
 if (!string.IsNullOrEmpty(googleConfig["ClientId"]) && !string.IsNullOrEmpty(googleConfig["ClientSecret"]))
 {
-    Console.WriteLine($" Google Authentication configured with ClientId: {googleConfig["ClientId"]?.Substring(0, 20)}...");
+    var clientId = googleConfig["ClientId"];
+    Console.WriteLine($" Google Authentication configured with ClientId: {(clientId != null && clientId.Length > 20 ? clientId.Substring(0, 20) : clientId)}...");
 }
 else
 {
     Console.WriteLine(" Google Authentication not configured. Set GoogleAuth:ClientId and GoogleAuth:ClientSecret in appsettings.json");
 }
 
-app.Logger.LogInformation("API Ready! Swagger: http://localhost:5000/swagger");
-app.Logger.LogInformation(" Google Login endpoint: http://localhost:5000/api/Auth/google-login");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.Run();
