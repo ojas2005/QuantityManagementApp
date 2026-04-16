@@ -12,6 +12,31 @@ using RepositoryLayer.Interfaces;
 using RepositoryLayer.Repositories;
 using Serilog;
 
+// Helper: Converts Render's postgres:// DATABASE_URL to Npgsql key-value format
+static string? ConvertDatabaseUrl(string? databaseUrl)
+{
+    if (string.IsNullOrEmpty(databaseUrl)) return null;
+    try
+    {
+        // Already in key-value format (e.g. Host=...;)
+        if (!databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
+            !databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+            return databaseUrl;
+
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':');
+        var user = Uri.UnescapeDataString(userInfo[0]);
+        var pass = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+        var db   = uri.AbsolutePath.TrimStart('/');
+        return $"Host={uri.Host};Port={uri.Port};Database={db};Username={user};Password={pass};SSL Mode=Require;Trust Server Certificate=true";
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ DATABASE_URL parse failed: {ex.Message}");
+        return null;
+    }
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -122,8 +147,23 @@ builder.Services.AddSwaggerGen(c =>
 
 // 5. DATABASE CONFIGURATION
 
+// Priority: ConnectionStrings:DefaultConnection → DATABASE_URL (converted) → error
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    var rawDbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    connectionString = ConvertDatabaseUrl(rawDbUrl);
+    Console.WriteLine(string.IsNullOrEmpty(connectionString)
+        ? "❌ No valid database connection string found!"
+        : $"✅ Using DATABASE_URL (converted). Host detected.");
+}
+else
+{
+    Console.WriteLine($"✅ Using ConnectionStrings:DefaultConnection from config.");
+}
+
 builder.Services.AddDbContext<QuantityDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 
 // 6. REDIS CACHE
