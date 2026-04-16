@@ -30,12 +30,21 @@ public class JwtService : IJwtService
         try
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
+            
+            // Robust secret reading: handles empty strings (not just null) from appsettings.json
             var secretKey = jwtSettings["Secret"];
-            var issuer = jwtSettings["Issuer"];
-            var audience = jwtSettings["Audience"];
+            if (string.IsNullOrEmpty(secretKey)) secretKey = _configuration["Jwt:Key"];
+            if (string.IsNullOrEmpty(secretKey)) secretKey = _configuration["Jwt__Key"];
+            if (string.IsNullOrEmpty(secretKey)) secretKey = "DevelopmentSecretKeyForTestingOnly1234567890!@#$%ABCDEF";
+
+            // Diagnostics: log the source of the secret (not the value itself)
+            Console.WriteLine($"🔑 JwtService.GenerateToken: Secret length={secretKey.Length}, IsNullOrEmpty={string.IsNullOrEmpty(jwtSettings["Secret"])}");
+
+            var issuer = jwtSettings["Issuer"] ?? "QuantityMeasurementApi";
+            var audience = jwtSettings["Audience"] ?? "QuantityMeasurementClients";
             var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "60");
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
@@ -69,17 +78,23 @@ public class JwtService : IJwtService
         try
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
+            
+            var secretKey = jwtSettings["Secret"];
+            if (string.IsNullOrEmpty(secretKey)) secretKey = _configuration["Jwt:Key"];
+            if (string.IsNullOrEmpty(secretKey)) secretKey = _configuration["Jwt__Key"];
+            if (string.IsNullOrEmpty(secretKey)) secretKey = "DevelopmentSecretKeyForTestingOnly1234567890!@#$%ABCDEF";
+
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
+            var key = Encoding.UTF8.GetBytes(secretKey);
 
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
-                ValidIssuer = jwtSettings["Issuer"],
+                ValidIssuer = jwtSettings["Issuer"] ?? "QuantityMeasurementApi",
                 ValidateAudience = true,
-                ValidAudience = jwtSettings["Audience"],
+                ValidAudience = jwtSettings["Audience"] ?? "QuantityMeasurementClients",
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };
