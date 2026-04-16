@@ -9,9 +9,7 @@ using QuantityMeasurementApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // 1. ENHANCED LOGGING with Serilog
-
 builder.Host.UseSerilog((context, config) =>
 {
     config.ReadFrom.Configuration(context.Configuration)
@@ -25,26 +23,20 @@ builder.Host.UseSerilog((context, config) =>
               outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}");
 });
 
-
 // 2. ADD SERVICES
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 // 3. DATABASE CONFIGURATION
-
 builder.Services.AddDbContext<QuantityDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseSqlServer(connectionString);
+    options.UseNpgsql(connectionString);
     options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
 });
 
-
 // 4. REDIS CACHE CONFIGURATION
-
 var useRedis = builder.Configuration.GetValue<bool>("CacheSettings:UseRedisCache", false);
 var redisConnection = builder.Configuration.GetConnectionString("Redis");
 
@@ -57,7 +49,6 @@ if (useRedis && !string.IsNullOrEmpty(redisConnection))
             options.Configuration = redisConnection;
             options.InstanceName = builder.Configuration.GetValue<string>("RedisCache:InstanceName", "QuantityApi_");
         });
-        builder.Services.AddSingleton<ICacheService, RedisCacheService>();
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
         builder.Services.AddHealthChecks().AddRedis(redisConnection, "redis");
         Console.WriteLine("✅ Redis cache configured");
@@ -76,18 +67,14 @@ else
     Console.WriteLine("📦 Using in-memory cache");
 }
 
-
 // 5. RESPONSE CACHING
-
 if (builder.Configuration.GetValue<bool>("CacheSettings:EnableResponseCaching", false))
 {
     builder.Services.AddResponseCaching();
     Console.WriteLine("✅ Response caching enabled");
 }
 
-
 // 6. REPOSITORY & SERVICE REGISTRATION
-
 builder.Services.AddSingleton<RepositoryFactory>();
 builder.Services.AddSingleton<IQuantityMeasurementRepository>(sp =>
 {
@@ -96,9 +83,7 @@ builder.Services.AddSingleton<IQuantityMeasurementRepository>(sp =>
 });
 builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService>();
 
-
 // 7. CORS
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -109,27 +94,39 @@ builder.Services.AddCors(options =>
     });
 });
 
+// 8. GOOGLE AUTHENTICATION LOGGING - FIXED LINE 236
+var googleConfig = builder.Configuration.GetSection("GoogleAuth");
+if (!string.IsNullOrEmpty(googleConfig["ClientId"]) && !string.IsNullOrEmpty(googleConfig["ClientSecret"]))
+{
+    // SAFE SUBSTRING HANDLING
+    var clientId = googleConfig["ClientId"];
+    var displayId = string.IsNullOrEmpty(clientId) ? "null" : 
+                    clientId.Length <= 20 ? clientId : 
+                    clientId.Substring(0, 20) + "...";
+    Console.WriteLine($"✅ Google Authentication configured with ClientId: {displayId}");
+}
+else
+{
+    Console.WriteLine("⚠️ Google Authentication not configured. Set GoogleAuth:ClientId and GoogleAuth:ClientSecret in appsettings.json");
+}
+
 var app = builder.Build();
 
-
-// 8. LOG APPLICATION STARTUP
-
+// 9. LOG APPLICATION STARTUP
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("🚀 Quantity Measurement API Starting...");
 logger.LogInformation("📊 Using repository: {RepositoryType}", 
     app.Services.GetRequiredService<IQuantityMeasurementRepository>().GetType().Name);
 
+// 10. HTTP PIPELINE
 
-// 9. HTTP PIPELINE
 
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI(c => 
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quantity API V1");
     });
-}
+
 
 app.UseHttpsRedirection();
 
@@ -143,14 +140,14 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-
-// 10. DATABASE VERIFICATION
-
+// 11. DATABASE VERIFICATION
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<QuantityDbContext>();
     context.Database.EnsureCreated();
     logger.LogInformation("📊 Database verified");
 }
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://*:{port}");
 
 app.Run();

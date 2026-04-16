@@ -39,7 +39,7 @@ namespace ApplicationLayer.Configuration
             services.AddDbContext<QuantityDbContext>(options =>
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                options.UseSqlServer(connectionString);
+                options.UseNpgsql(connectionString);
                 options.EnableSensitiveDataLogging(false);
                 options.EnableDetailedErrors(false);
             });

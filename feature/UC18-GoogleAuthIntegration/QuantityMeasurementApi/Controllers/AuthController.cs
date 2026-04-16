@@ -223,16 +223,38 @@ public class AuthController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Initiate Google OAuth flow — redirects to Google's consent screen
+    /// </summary>
+    [HttpGet("google")]
+    public IActionResult GoogleRedirect()
+    {
+        var clientId = _configuration["GoogleAuth:ClientId"] ?? "";
+        var redirectUri = "http://localhost:5000/api/Auth/google-callback";
+        var scope = "openid email profile";
+        var googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth"
+            + $"?client_id={Uri.EscapeDataString(clientId)}"
+            + $"&redirect_uri={Uri.EscapeDataString(redirectUri)}"
+            + $"&response_type=code"
+            + $"&scope={Uri.EscapeDataString(scope)}"
+            + $"&access_type=offline"
+            + $"&prompt=consent";
+
+        _logger.LogInformation("Redirecting to Google OAuth: {Url}", googleAuthUrl);
+        return Redirect(googleAuthUrl);
+    }
+
     [HttpGet("google-callback")]
     public async Task<IActionResult> GoogleCallback([FromQuery] string code)
     {
+        var frontendUrl = "http://localhost:4200";
         try
         {
             _logger.LogInformation("Google callback received");
 
             if (string.IsNullOrEmpty(code))
             {
-                return BadRequest(new { error = "No authorization code received" });
+                return Redirect($"{frontendUrl}?error=No+authorization+code+received");
             }
 
             // Exchange code for tokens
@@ -253,7 +275,7 @@ public class AuthController : ControllerBase
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Token exchange failed: {Response}", responseContent);
-                return BadRequest(new { error = "Token exchange failed" });
+                return Redirect($"{frontendUrl}?error=Token+exchange+failed");
             }
 
             var tokenData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseContent);
@@ -261,13 +283,13 @@ public class AuthController : ControllerBase
 
             if (string.IsNullOrEmpty(idToken))
             {
-                return BadRequest(new { error = "No ID token received" });
+                return Redirect($"{frontendUrl}?error=No+ID+token+received");
             }
 
             var googleUser = await _googleAuthService.ValidateGoogleTokenAsync(idToken);
             if (googleUser == null)
             {
-                return BadRequest(new { error = "Invalid Google token" });
+                return Redirect($"{frontendUrl}?error=Invalid+Google+token");
             }
 
             // Find or create user
@@ -292,26 +314,24 @@ public class AuthController : ControllerBase
 
             var jwtToken = _jwtService.GenerateToken(user);
 
-            return Ok(new
+            // Redirect back to Angular frontend with token and user info in URL params
+            var userJson = System.Text.Json.JsonSerializer.Serialize(new
             {
-                success = true,
-                token = jwtToken,
-                user = new
-                {
-                    user.Id,
-                    user.Email,
-                    user.Username,
-                    user.FullName,
-                    user.ProfilePicture,
-                    user.Role,
-                    user.CreatedAt
-                }
+                id = user.Id,
+                email = user.Email,
+                username = user.Username,
+                fullName = user.FullName,
+                profilePicture = user.ProfilePicture,
+                role = user.Role
             });
+
+            var redirectUrl = $"{frontendUrl}?token={Uri.EscapeDataString(jwtToken)}&user={Uri.EscapeDataString(userJson)}";
+            return Redirect(redirectUrl);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in Google callback");
-            return StatusCode(500, new { error = ex.Message });
+            return Redirect($"{frontendUrl}?error={Uri.EscapeDataString(ex.Message)}");
         }
     }
 }

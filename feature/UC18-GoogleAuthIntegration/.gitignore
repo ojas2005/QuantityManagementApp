@@ -46,3 +46,6 @@ coverage/
 # Mac system files
 .AppleDouble
 .LSOverride
+# Development settings
+appsettings.Development.json
+*.Development.json
