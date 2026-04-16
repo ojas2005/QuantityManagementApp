@@ -29,7 +29,16 @@ builder.Host.UseSerilog((context, config) =>
 // 2. AUTHENTICATION - JWT + Google
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secret = jwtSettings["Secret"] ?? "DevelopmentSecretKeyForTestingOnly1234567890!@#$%";
+
+// Check multiple config paths - handles both direct env vars and nested JSON
+// Render env var: JwtSettings__Secret maps to JwtSettings:Secret
+var secret = jwtSettings["Secret"];
+if (string.IsNullOrEmpty(secret)) secret = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrEmpty(secret)) secret = builder.Configuration["Jwt__Key"];
+if (string.IsNullOrEmpty(secret)) secret = "DevelopmentSecretKeyForTestingOnly1234567890!@#$%ABCDEF";
+
+Console.WriteLine($"🔑 JWT KEY Diagnostic: IsEmpty={string.IsNullOrEmpty(jwtSettings["Secret"])}, Length={secret.Length}");
+
 var secretKey = Encoding.UTF8.GetBytes(secret);
 
 // Add authentication with multiple schemes
