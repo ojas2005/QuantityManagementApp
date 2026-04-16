@@ -13,26 +13,29 @@ using RepositoryLayer.Repositories;
 using Serilog;
 
 // Helper: Converts Render's postgres:// DATABASE_URL to Npgsql key-value format
-static string? ConvertDatabaseUrl(string? databaseUrl)
+static string? ConvertDatabaseUrl(string? url)
 {
-    if (string.IsNullOrEmpty(databaseUrl)) return null;
+    if (string.IsNullOrEmpty(url)) return null;
     try
     {
         // Already in key-value format (e.g. Host=...;)
-        if (!databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
-            !databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
-            return databaseUrl;
+        if (!url.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
+            !url.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+            return url;
 
-        var uri = new Uri(databaseUrl);
+        var uri = new Uri(url);
         var userInfo = uri.UserInfo.Split(':');
-        var user = Uri.UnescapeDataString(userInfo[0]);
-        var pass = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
-        var db   = uri.AbsolutePath.TrimStart('/');
-        return $"Host={uri.Host};Port={uri.Port};Database={db};Username={user};Password={pass};SSL Mode=Require;Trust Server Certificate=true";
+        var host = uri.Host;
+        var port = uri.Port > 0 ? uri.Port : 5432;
+        var database = uri.AbsolutePath.TrimStart('/');
+        var username = userInfo[0];
+        var password = userInfo.Length > 1 ? userInfo[1] : "";
+        
+        return $"Host={host};Database={database};Username={username};Password={password};Port={port};SSL Mode=Require;Trust Server Certificate=true";
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"⚠️ DATABASE_URL parse failed: {ex.Message}");
+        Console.WriteLine($"⚠️ Database URL conversion failed: {ex.Message}");
         return null;
     }
 }
@@ -148,22 +151,47 @@ builder.Services.AddSwaggerGen(c =>
 // 5. DATABASE CONFIGURATION
 
 // Priority: ConnectionStrings:DefaultConnection → DATABASE_URL (converted) → error
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-if (string.IsNullOrEmpty(connectionString))
+var raw = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// ── DIAGNOSTICS ──────────────────────────────────────────────────────────────
+Console.WriteLine($"🔍 RAW connection string found in config? {!string.IsNullOrEmpty(raw)}");
+if (!string.IsNullOrEmpty(raw))
 {
+    Console.WriteLine($"🔍 RAW prefix (first 100 chars): '{raw.Substring(0, Math.Min(100, raw.Length))}'");
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Convert postgres:// URL to Npgsql key-value format if needed
+if (!string.IsNullOrEmpty(raw) &&
+    (raw.TrimStart().StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+     raw.TrimStart().StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)))
+{
+    Console.WriteLine("🔄 Connection string is in URL format — converting...");
+    raw = ConvertDatabaseUrl(raw);
+}
+
+if (string.IsNullOrEmpty(raw) || !raw.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+{
+    Console.WriteLine("⚠️ Configuration 'DefaultConnection' is missing or invalid. Falling back to DATABASE_URL...");
     var rawDbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-    connectionString = ConvertDatabaseUrl(rawDbUrl);
-    Console.WriteLine(string.IsNullOrEmpty(connectionString)
-        ? "❌ No valid database connection string found!"
-        : $"✅ Using DATABASE_URL (converted). Host detected.");
+    raw = ConvertDatabaseUrl(rawDbUrl);
+}
+
+if (string.IsNullOrEmpty(raw) || !raw.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+{
+    Console.WriteLine("❌ CRITICAL: No valid database connection string found! (Missing 'Host=')");
 }
 else
 {
-    Console.WriteLine($"✅ Using ConnectionStrings:DefaultConnection from config.");
+    // Log masked version for confirmation
+    var masked = raw.Contains("Password=") 
+        ? System.Text.RegularExpressions.Regex.Replace(raw, "Password=[^;]+", "Password=********")
+        : raw;
+    Console.WriteLine($"✅ Database connection prepared: {masked}");
 }
 
 builder.Services.AddDbContext<QuantityDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(raw));
 
 
 // 6. REDIS CACHE
